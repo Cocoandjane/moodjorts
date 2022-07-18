@@ -1,4 +1,51 @@
+  //add listener as we make the card (non-delegation approach)
+  // image.addEventListener("click", (event) => {
+  //   let btnDivs = document.querySelectorAll("div.divAllButtons");
+  //   event.preventDefault();
+  //   btnDivs.forEach((btnDiv) => {
+  //     if (btnDiv.parentNode === image.parentNode) {
+  //       btnDiv.classList.toggle("filterDiv");
+  //     } else {
+  //       btnDiv.classList.add("filterDiv");
+  //     }
+  //   });
+  // });
+let a = [11, 21, 38, 0]
+          let temp = a[2]
+          a[2]=a[1]
+          a[1]=temp
 
+          //destructuring asignment
+          [a[1], a[2]] = [a[2], a[1]]
+
+          let [x,y,z] = [1,2,3]
+
+
+// makeCard(
+//   "https://images.unsplash.com/photo-1648737119359-510d4f551382?ixlib=rb-1.2.1&ixid=MnwxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHwyMXx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=60"
+// );
+// makeCard(
+//   "https://cdn.pixabay.com/photo/2022/02/10/05/44/wuzhen-7004638__340.jpg"
+// );
+// makeCard(
+//   "https://cdn.pixabay.com/photo/2022/03/29/21/04/eggs-7100211__340.jpg"
+// );
+// makeCard(
+//   "https://cdn.pixabay.com/photo/2021/09/05/06/34/spider-web-6598978__340.jpg"
+// );
+
+// dream TODO: IF there is nothing in localstorage, then put those 4 images in localstorage, THEN load them.
+
+
+  // let data = JSON.parse(localStorage.getItem("allImages"));
+  // let currentData = data.filter((d) => {
+  //   return d.id === id;
+  // });
+  // if (data) {
+  //   div.classList.add("card", currentData[0].size);
+  // } else {
+  //   div.classList.add("card", "size5");
+  // } 
 //query selector goes down, closest goes up
 
 /*
