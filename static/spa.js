@@ -1,16 +1,15 @@
 let history = [JSON.parse(localStorage.getItem("allImages"))];
 let curentHistoryIndex = 0;
-
 function drawAllCards(cardList) {
   //delete all cards
   document.querySelectorAll(".card").forEach((card) => {
     card.remove();
   });
-  if(cardList){
-  cardList.forEach((imgObj) => {
-    makeCard(imgObj.url, imgObj.id, imgObj.size);
-  });
-}
+  if (cardList) {
+    cardList.forEach((imgObj) => {
+      makeCard(imgObj.url, imgObj.id, imgObj.size);
+    });
+  }
 }
 drawAllCards(history[0]);
 
@@ -39,15 +38,14 @@ function redo() {
 }
 
 document.querySelector(".buttonUndo").addEventListener("click", (event) => {
-  event.preventDefault()
-  undo()
-})
+  event.preventDefault();
+  undo();
+});
 
 document.querySelector(".buttonRedo").addEventListener("click", (event) => {
-  event.preventDefault()
-  redo()
-})
-
+  event.preventDefault();
+  redo();
+});
 
 let addImageButton = document.querySelector(".buttonAddImage");
 addImageButton.addEventListener("click", (event) => {
@@ -146,9 +144,6 @@ function makeCard(imgUrl, id, size = "size5") {
 
       let existingImages = localStorage.getItem("allImages");
       existingImages = existingImages ? JSON.parse(existingImages) : [];
-      let currentImage = existingImages.filter((img) => {
-        return img.id === id;
-      });
 
       //swap left
       if (event.target.classList.contains("left")) {
@@ -172,18 +167,6 @@ function makeCard(imgUrl, id, size = "size5") {
           //4: update everybody else (dom and localstorage)
           drawAllCards(history[curentHistoryIndex]);
           localStorage.setItem("allImages", JSON.stringify(newHistoryState));
-          //
-
-          // divs[index_me].parentNode.insertBefore(
-          //   divs[index_me],
-          //   divs[index_me - 1]
-          // );
-
-          // let ArrangedImages = document.querySelectorAll("img");
-          // for (let i = 0; i < existingImages.length; i++) {
-          //   existingImages[i].url = ArrangedImages[i].src;
-          // }
-          // localStorage.setItem("allImages", JSON.stringify(existingImages));
         }
       }
       //swap right
@@ -205,21 +188,10 @@ function makeCard(imgUrl, id, size = "size5") {
           //4: update everybody else (dom and localstorage)
           drawAllCards(history[curentHistoryIndex]);
           localStorage.setItem("allImages", JSON.stringify(newHistoryState));
-          // divs[index_me].parentNode.insertBefore(
-          //   divs[index_me + 1],
-          //   divs[index_me]
-          // );
-          // let ArrangedImages = document.querySelectorAll("img");
-          // for (let i = 0; i < existingImages.length; i++) {
-          //   existingImages[i].url = ArrangedImages[i].src;
-          // }
-          // localStorage.setItem("allImages", JSON.stringify(existingImages));
         }
       }
       //bigger
-      
       let size = event.target.parentNode.parentNode.classList[1];
-      console.log(size)
       if (event.target.classList.contains("bigger")) {
         let currentSize = +size.slice(-1);
         if (currentSize === 9) {
@@ -232,24 +204,14 @@ function makeCard(imgUrl, id, size = "size5") {
           let sizeLetter = size.substr(0, 4);
           let newSizeNumber = +size.slice(-1) + 1;
           newHistoryState[index_me].size = sizeLetter + newSizeNumber;
-
           // 3: push history object and update index
           curentHistoryIndex++;
           history.push(newHistoryState);
-
           //4: update everybody else (dom and localstorage)
           drawAllCards(history[curentHistoryIndex]);
           localStorage.setItem("allImages", JSON.stringify(newHistoryState));
-          // let sizeLetter = size.substr(0, 4);
-          // let newSizeNumber = +size.slice(-1) + 1;
-          // card.classList.remove(size);
-          // currentImage[0]["size"] = sizeLetter + newSizeNumber;
-          // localStorage.setItem("allImages", JSON.stringify(existingImages));
-          // console.log(currentImage[0].size);
-          // card.classList.add(currentImage[0].size);
         }
       }
-
       //smaller
       if (event.target.classList.contains("smaller")) {
         let currentSize = +size.slice(-1);
@@ -270,7 +232,6 @@ function makeCard(imgUrl, id, size = "size5") {
       if (event.target.classList.contains("delete")) {
         let curentHistoryState = history[curentHistoryIndex];
         let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState));
-        console.log(newHistoryState)
         //2: do the necessary change (remove curent card)
         let newArr = newHistoryState.filter((img) => {
           return img.id !== id;
@@ -281,12 +242,6 @@ function makeCard(imgUrl, id, size = "size5") {
 
         drawAllCards(history[curentHistoryIndex]);
         localStorage.setItem("allImages", JSON.stringify(newArr));
-
-        //   event.target.closest(".card").remove();
-        //   let newArr = existingImages.filter((img) => {
-        //     return img.id !== id;
-        //   });
-        //   localStorage.setItem("allImages", JSON.stringify(newArr));
       }
     });
 
@@ -300,20 +255,40 @@ function makeCard(imgUrl, id, size = "size5") {
 
 document.body.onload = addElement();
 
-function addImageToLocalStorage(url) {
-  let existingImages = JSON.parse(localStorage.getItem("allImages"));
-  if (existingImages === null) existingImages = [];
+function addNewImgToHistoryAndLocalstorage(url) {
+  //1: make a new history state object
+  let curentHistoryState = history[curentHistoryIndex];
+  let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState));
+  //2: do the necessary change (big or small)
   let id = Date.now();
   let entry = {
     id,
     url: url,
-    size: "size5"
+    size: "size5",
   };
-  // localStorage.setItem("entry", JSON.stringify(entry));
-  existingImages.push(entry);
-  localStorage.setItem("allImages", JSON.stringify(existingImages));
+  newHistoryState.push(entry)
+  // 3: push history object and update index
+  curentHistoryIndex++;
+  history.push(newHistoryState);
+  //4: update everybody else (dom and localstorage)
+  drawAllCards(history[curentHistoryIndex]);
+  localStorage.setItem("allImages", JSON.stringify(newHistoryState));
   return id;
 }
+// function addImageToLocalStorage(url) {
+//   let existingImages = JSON.parse(localStorage.getItem("allImages"));
+//   if (existingImages === null) existingImages = [];
+//   let id = Date.now();
+//   let entry = {
+//     id,
+//     url: url,
+//     size: "size5"
+//   };
+//   // localStorage.setItem("entry", JSON.stringify(entry));
+//   existingImages.push(entry);
+//   localStorage.setItem("allImages", JSON.stringify(existingImages));
+//   return id;
+// }
 
 function addElement() {
   let addBtn = document.getElementById("addPicture");
@@ -321,10 +296,9 @@ function addElement() {
     event.preventDefault();
     let inputUrl = document.getElementById("newPicUrl").value;
     //call add image to storage first, then call makeCard. otherwise code will break
-    let id = addImageToLocalStorage(inputUrl);
+     addNewImgToHistoryAndLocalstorage(inputUrl);
     //add to history, history clears after refresh.
-
-    makeCard(inputUrl, id);
+    // makeCard(inputUrl, id);
   });
 
   let cancelBtn = document.getElementById("cancelAddPic");
