@@ -131,7 +131,7 @@
   display: none;
 }
 
-#absolute {
+main>div.absolute {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -139,10 +139,6 @@
   z-index: 1;
 }
 
-#absoluteImg{
-   width: 300px;
-   height: 300px;
- } 
   
 .displayNone{
   display: none;

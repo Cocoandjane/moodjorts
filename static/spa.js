@@ -54,25 +54,6 @@ addImageButton.addEventListener("click", (event) => {
   addImageForm.classList.remove("displayNone");
 });
 
-function makeAbsoluteCard(url) {
-  let absoluteDiv = document.createElement("div");
-  absoluteDiv.id = "absolute";
-  let absoluteImg = document.createElement("img");
-  absoluteImg.id = "absoluteImg";
-  absoluteImg.src = url;
-
-  absoluteButton = document.createElement("button");
-  absoluteButton.innerHTML = "&#10025";
-  absoluteButton.classList.add("star", "hideAbsoluteButton");
-
-  absoluteDiv.append(absoluteImg, absoluteButton);
-  document.querySelector("main").appendChild(absoluteDiv);
-}
-
-let existingAbsolute = JSON.parse(localStorage.getItem("absoluteImg"));
-if (existingAbsolute) {
-  makeAbsoluteCard(existingAbsolute.url);
-}
 
 function makeCard(imgUrl, id, size = "size5") {
   //default parameter, if you give it a value it will use that value
@@ -95,30 +76,12 @@ function makeCard(imgUrl, id, size = "size5") {
 
   div.classList.add("card", size);
 
-  //madke absolute button
+  //make absolute button
   absoluteButton = document.createElement("button");
   absoluteButton.innerHTML = "&#10025";
   absoluteButton.classList.add("star", "hideAbsoluteButton");
   absoluteButton.addEventListener("click", (event) => {
-    let entry = {
-      url: event.target.parentNode.firstChild.src,
-      x: 0,
-      y: 0,
-    };
-    // add crurrent image into new local storages as new key value
-    localStorage.setItem("absoluteImg", JSON.stringify(entry));
-
-    makeAbsoluteCard(event.target.parentNode.firstChild.src);
-    let url = event.target.parentNode.firstChild.src;
-    event.target.closest(".card").remove();
-
-    let existingImages = localStorage.getItem("allImages");
-    existingImages = existingImages ? JSON.parse(existingImages) : [];
-
-    let newArr = existingImages.filter((img) => {
-      return img.url !== url;
-    });
-    localStorage.setItem("allImages", JSON.stringify(newArr));
+    event.target.parentNode.classList.toggle("absolute")
   });
   cards.append(absoluteButton);
 
@@ -136,7 +99,6 @@ function makeCard(imgUrl, id, size = "size5") {
       let divs = document.querySelectorAll("main > div");
       for (var index_me = 0; index_me < divs.length; index_me++) {
         const currentCard = divs[index_me];
-
         if (event.target.parentNode.parentNode === currentCard) {
           break;
         }
@@ -159,7 +121,7 @@ function makeCard(imgUrl, id, size = "size5") {
           newHistoryState[index_me] = temp;
 
           //TODO : throw away the future if there is future
-
+          history.length = curentHistoryIndex+1
           // 3: push history object and update index
           curentHistoryIndex++;
           history.push(newHistoryState);
@@ -180,7 +142,7 @@ function makeCard(imgUrl, id, size = "size5") {
           let temp = newHistoryState[index_me + 1];
           newHistoryState[index_me + 1] = newHistoryState[index_me];
           newHistoryState[index_me] = temp;
-
+          history.length = curentHistoryIndex+1
           // 3: push history object and update index
           curentHistoryIndex++;
           history.push(newHistoryState);
@@ -200,7 +162,7 @@ function makeCard(imgUrl, id, size = "size5") {
           let curentHistoryState = history[curentHistoryIndex];
           let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState));
           //2: do the necessary change (big or small)
-
+          history.length = curentHistoryIndex+1
           let sizeLetter = size.substr(0, 4);
           let newSizeNumber = +size.slice(-1) + 1;
           newHistoryState[index_me].size = sizeLetter + newSizeNumber;
@@ -219,8 +181,10 @@ function makeCard(imgUrl, id, size = "size5") {
         } else {
           let curentHistoryState = history[curentHistoryIndex];
           let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState));
+          history.length = curentHistoryIndex+1
           let sizeLetter = size.substr(0, 4);
           let newSizeNumber = +size.slice(-1) - 1;
+          console.log( newHistoryState[index_me])
           newHistoryState[index_me].size = sizeLetter + newSizeNumber;
           curentHistoryIndex++;
           history.push(newHistoryState);
@@ -253,20 +217,24 @@ function makeCard(imgUrl, id, size = "size5") {
   urlForm.classList.add("displayNone");
 }
 
-document.body.onload = addElement();
+
 
 function addNewImgToHistoryAndLocalstorage(url) {
   //1: make a new history state object
   let curentHistoryState = history[curentHistoryIndex];
   let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState));
+  if (newHistoryState === null) newHistoryState = [];
+  // throw away future history
+  history.length = curentHistoryIndex+1
   //2: do the necessary change (big or small)
   let id = Date.now();
   let entry = {
     id,
-    url: url,
+    url,
     size: "size5",
   };
-  newHistoryState.push(entry)
+
+  newHistoryState.push(entry);
   // 3: push history object and update index
   curentHistoryIndex++;
   history.push(newHistoryState);
@@ -275,6 +243,7 @@ function addNewImgToHistoryAndLocalstorage(url) {
   localStorage.setItem("allImages", JSON.stringify(newHistoryState));
   return id;
 }
+
 // function addImageToLocalStorage(url) {
 //   let existingImages = JSON.parse(localStorage.getItem("allImages"));
 //   if (existingImages === null) existingImages = [];
@@ -282,21 +251,21 @@ function addNewImgToHistoryAndLocalstorage(url) {
 //   let entry = {
 //     id,
 //     url: url,
-//     size: "size5"
+//     size: "size5",
 //   };
 //   // localStorage.setItem("entry", JSON.stringify(entry));
 //   existingImages.push(entry);
 //   localStorage.setItem("allImages", JSON.stringify(existingImages));
 //   return id;
 // }
-
+document.body.onload = addElement();
 function addElement() {
   let addBtn = document.getElementById("addPicture");
   addBtn.addEventListener("click", (event) => {
     event.preventDefault();
     let inputUrl = document.getElementById("newPicUrl").value;
     //call add image to storage first, then call makeCard. otherwise code will break
-     addNewImgToHistoryAndLocalstorage(inputUrl);
+    addNewImgToHistoryAndLocalstorage(inputUrl);
     //add to history, history clears after refresh.
     // makeCard(inputUrl, id);
   });
@@ -310,67 +279,68 @@ function addElement() {
 }
 
 document.querySelector("main").addEventListener("keydown", (event) => {
-  console.log(event.key);
   let divs = document.querySelectorAll("main > div");
   for (var index_me = 0; index_me < divs.length; index_me++) {
     const currentCard = divs[index_me];
-
     if (event.target === currentCard) {
       break;
     }
   }
-
-  let existingImages = localStorage.getItem("allImages");
-  existingImages = existingImages ? JSON.parse(existingImages) : {};
-  let currentImage = existingImages.filter((img) => {
-    return img.id === +event.target.id;
-  });
-
   if (event.key === "ArrowLeft") {
     if (index_me === 0) {
     } else {
-      divs[index_me].parentNode.insertBefore(
-        divs[index_me],
-        divs[index_me - 1]
-      );
+      //1: make a new history state object
+      let currentHistoryState = history[curentHistoryIndex];
+      let newHistoryState = JSON.parse(JSON.stringify(currentHistoryState));
+      //2: do the necessary change(swap left and right)
+      let temp = newHistoryState[index_me - 1];
+      newHistoryState[index_me - 1] = newHistoryState[index_me];
+      newHistoryState[index_me] = temp;
+      //TODO : throw away the future if there is future
+      history.length = curentHistoryIndex+1
+      // 3: push history object and update index
+      curentHistoryIndex++;
+      history.push(newHistoryState);
 
-      let ArrangedImages = document.querySelectorAll("img");
-      for (let i = 0; i < existingImages.length; i++) {
-        existingImages[i].url = ArrangedImages[i].src;
-      }
-      localStorage.setItem("allImages", JSON.stringify(existingImages));
+      //4: update everybody else (dom and localstorage)
+      drawAllCards(history[curentHistoryIndex]);
+      localStorage.setItem("allImages", JSON.stringify(newHistoryState));
     }
   }
 
   if (event.key === "ArrowRight") {
     if (index_me === divs.length - 1) {
     } else {
-      divs[index_me].parentNode.insertBefore(
-        divs[index_me + 1],
-        divs[index_me]
-      );
-      let ArrangedImages = document.querySelectorAll("img");
-      for (let i = 0; i < existingImages.length; i++) {
-        existingImages[i].url = ArrangedImages[i].src;
-      }
-      localStorage.setItem("allImages", JSON.stringify(existingImages));
+      let currentHistoryState = history[curentHistoryIndex];
+      let newHistoryState = JSON.parse(JSON.stringify(currentHistoryState));
+      history.length = curentHistoryIndex+1
+      let temp = newHistoryState[index_me + 1];
+      newHistoryState[index_me + 1] = newHistoryState[index_me];
+      newHistoryState[index_me] = temp;
+
+      curentHistoryIndex++;
+      history.push(newHistoryState);
+
+      drawAllCards(history[curentHistoryIndex]);
+      localstorage.setItem("allImages", JSON.stringify(newHistoryState));
     }
   }
-
-  let card = event.target;
   let size = event.target.classList[1];
-
   if (event.key === "ArrowUp") {
     let currentSize = +size.slice(-1);
     if (currentSize === 9) {
     } else {
+      let currentHistoryState = history[curentHistoryIndex];
+      let newHistoryState = JSON.parse(JSON.stringify(currentHistoryState));
+      history.length = curentHistoryIndex+1
       let sizeLetter = size.substr(0, 4);
       let newSizeNumber = +size.slice(-1) + 1;
-      card.classList.remove(size);
-      currentImage[0]["size"] = sizeLetter + newSizeNumber;
-      localStorage.setItem("allImages", JSON.stringify(existingImages));
-      console.log(currentImage[0].size);
-      card.classList.add(currentImage[0].size);
+      newHistoryState[index_me].size = sizeLetter + newSizeNumber;
+
+      curentHistoryIndex++;
+      history.push(newHistoryState);
+      drawAllCards(history[curentHistoryIndex]);
+      localStorage.setItem("allImages", JSON.stringify(newHistoryState));
     }
   }
 
@@ -378,24 +348,32 @@ document.querySelector("main").addEventListener("keydown", (event) => {
     let currentSize = +size.slice(-1);
     if (currentSize === 1) {
     } else {
+      let currentHistoryState = history[curentHistoryIndex];
+      let newHistoryState = JSON.parse(JSON.stringify(currentHistoryState));
+      history.length = curentHistoryIndex+1
       let sizeLetter = size.substr(0, 4);
       let newSizeNumber = +size.slice(-1) - 1;
-      card.classList.remove(size);
-      //card.classList.add(sizeLetter + newSizeNumber);
+      newHistoryState[index_me].size = sizeLetter + newSizeNumber;
 
-      currentImage[0]["size"] = sizeLetter + newSizeNumber;
-      localStorage.setItem("allImages", JSON.stringify(existingImages));
-      console.log(currentImage[0].size);
-      card.classList.add(currentImage[0].size);
+      curentHistoryIndex++;
+      history.push(newHistoryState);
+
+      drawAllCards(history[curentHistoryIndex]);
+      localStorage.setItem("allImages", JSON.stringify(newHistoryState));
     }
   }
 
   if (event.key === "Backspace") {
     //closest will look up
-    event.target.remove();
-    let newArr = existingImages.filter((img) => {
-      return img.id !== +event.target.id;
+    let curentHistoryState = history[curentHistoryIndex];
+    let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState));
+    history.length = curentHistoryIndex+1
+    let newArr = newHistoryState.filter((imgObj) => {
+      return imgObj.id !== +event.target.id;
     });
+    curentHistoryIndex++;
+    history.push(newArr);
+    drawAllCards(newArr);
     localStorage.setItem("allImages", JSON.stringify(newArr));
   }
 });
@@ -427,57 +405,16 @@ document.querySelector("main").addEventListener("click", (event) => {
       }
     });
   }
-
-  // delete absoluteCard and make it into normal card
-  let abCard = event.target.closest("#absolute");
-  if (abCard) {
-    abCard.addEventListener("click", (event) => {
-      if (event.target.closest(".star")) {
-        abCard.classList.add("displayNone");
-        let id = addImageToLocalStorage(event.target.parentNode.firstChild.src);
-        makeCard(event.target.parentNode.firstChild.src, id);
-        localStorage.removeItem("absoluteImg");
-      }
-    });
-  }
+ 
 });
 
-//undo/redo
-//svg
-//tab, keybinds
-// let allCards = document.querySelectorAll(".card")
-// for (let i = 0; i < allCards.length; i++) {
-//   allCards[i].tabIndex=(i)
-// }
-// document.addEventListener("keydown", (event) => {
-//   event.preventDefault()
-
-//   let tabbables = document.querySelectorAll(".card")
-//   for(var i=0; i<tabbables.length; i++) { //loop through each element
-//     // if(tabbables[i].tabIndex == (curIndex+1)) { //check the tabindex to see if it's the element we want
-//     //    console.log(i)
-//      // tabbables[i+1].focus(); //if it's the one we want, focus it and exit the loop
-//         // break;
-//   //  }
-// }
-// })
 
 //drag
 // tutorial: https://www.youtube.com/watch?v=jfYWwQrtzzY
 
 const draggables = document.querySelector("main");
 const container = document.querySelector("main");
-// draggables.forEach((draggable) => {
-//   draggable.addEventListener("dragstart", () => {
-//     draggable.classList.add("dragging")
-//   })
 
-//   draggable.addEventListener("dragend", () => {
-//     draggable.classList.remove("dragging")
-//   })
-// });
-
-//above code won't work for new added images, so I needed to use event delegation
 draggables.addEventListener("dragstart", (event) => {
   let card = event.target.closest(".card");
   if (card !== null) {
@@ -506,11 +443,31 @@ container.addEventListener("dragover", (event) => {
     }
 
     //save dragged array into localstorage
+    // let curentHistoryState = history[curentHistoryIndex]
+    // let newHistoryState = JSON.parse(JSON.stringify(curentHistoryState))
+    
+    // let cards = document.querySelectorAll(".card");
+    // let ArrangedImages = document.querySelectorAll("img");
+
+
+    // for (let i = 0; i < ArrangedImages.length; i++) {
+    //   newHistoryState[i].url = ArrangedImages[i].src;
+    //   newHistoryState[i].size = cards[i].classList[1];
+    //   newHistoryState[i].id = cards[i].id;
+    // }
+
+    // curentHistoryIndex++
+    // history.push(newHistoryState)
+    // drawAllCards(history[curentHistoryIndex])
+    // localStorage.setItem("allImages", JSON.stringify(newHistoryState))
     let existingImages = localStorage.getItem("allImages");
-    existingImages = existingImages ? JSON.parse(existingImages) : {};
+    existingImages = existingImages ? JSON.parse(existingImages) : [];
     let ArrangedImages = document.querySelectorAll("img");
+    let cards = document.querySelectorAll(".card");
     for (let i = 0; i < existingImages.length; i++) {
       existingImages[i].url = ArrangedImages[i].src;
+      existingImages[i].size = cards[i].classList[1];
+      existingImages[i].id = cards[i].id;
     }
     localStorage.setItem("allImages", JSON.stringify(existingImages));
   }
