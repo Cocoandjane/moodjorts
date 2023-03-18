@@ -7,7 +7,7 @@ app.use(express.static("static"))
 
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname + '/views/index.ejs'));
+  res.render(path.join(__dirname + '/views/index.ejs'));
 })
 
 module.exports = app;
