@@ -1,13 +1,14 @@
-const express = require('express')
+// const express = require('express')
 
-const path = require('path');
-const app = express()
-app.set('view engine', 'ejs')
-app.use(express.static("static"))
+// const path = require('path');
+// const app = express()
+// app.set('view engine', 'ejs')
+// app.use(express.static("static"))
 
 
-app.get('/', (req, res) => {
-  res.render(path.join(__dirname + '/views/index.ejs'));
-})
+// app.get('/', (req, res) => {
 
-module.exports = app;
+//   res.render(path.join(__dirname + '/views/index.ejs'))
+// })
+
+// module.exports = app;
