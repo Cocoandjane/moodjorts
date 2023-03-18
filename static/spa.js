@@ -1,4 +1,5 @@
 let history = [JSON.parse(localStorage.getItem("allImages"))];
+console.log(history)
 let curentHistoryIndex = 0;
 function drawAllCards(cardList) {
   //delete all cards
